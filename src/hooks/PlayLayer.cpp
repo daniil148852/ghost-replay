@@ -20,22 +20,18 @@ class $modify(GhostPlayLayer, PlayLayer) {
         m_fields->frameCounter = 0;
         m_fields->initialized = true;
         
-        // Инициализируем менеджер призраков
         GhostManager::get()->onEnterLevel(this);
         
-        // Запускаем запись если включена авто-запись
         if (Mod::get()->getSettingValue<bool>("auto-record")) {
             Recorder::get()->startRecording(this);
         }
         
-        // Добавляем кнопку призрака в UI
         addGhostButton();
         
         return true;
     }
     
     void addGhostButton() {
-        // Создаём кнопку в меню
         auto menu = CCMenu::create();
         menu->setPosition(CCPointZero);
         menu->setID("ghost-menu"_spr);
@@ -49,7 +45,6 @@ class $modify(GhostPlayLayer, PlayLayer) {
         );
         
         auto winSize = CCDirector::sharedDirector()->getWinSize();
-        // Позиция в правом верхнем углу
         btn->setPosition(ccp(winSize.width - 30.f, winSize.height - 30.f));
         
         menu->addChild(btn);
@@ -62,7 +57,6 @@ class $modify(GhostPlayLayer, PlayLayer) {
         if (m_level) {
             levelID = ghost_utils::getLevelID(m_level);
         }
-        
         auto popup = GhostPopup::create(levelID);
         if (popup) {
             popup->show();
@@ -74,10 +68,7 @@ class $modify(GhostPlayLayer, PlayLayer) {
         
         if (!m_fields->initialized) return;
         
-        // Записываем кадр (позиция, вращение и т.д.)
         Recorder::get()->recordFrame(this);
-        
-        // Обновляем анимацию призраков
         GhostManager::get()->update(m_fields->frameCounter);
         
         m_fields->frameCounter++;
@@ -85,22 +76,15 @@ class $modify(GhostPlayLayer, PlayLayer) {
     
     void resetLevel() {
         PlayLayer::resetLevel();
-        
         m_fields->frameCounter = 0;
-        
-        // Перезапускаем запись
         Recorder::get()->onResetLevel(this);
-        
-        // Сбрасываем призраков в начало
         GhostManager::get()->reset();
     }
     
     void destroyPlayer(PlayerObject* player, GameObject* obj) {
-        // Записываем смерть до вызова оригинала
         if (player == m_player1) {
             Recorder::get()->onPlayerDeath(this);
         }
-        
         PlayLayer::destroyPlayer(player, obj);
     }
     
@@ -110,13 +94,10 @@ class $modify(GhostPlayLayer, PlayLayer) {
     }
     
     void onQuit() {
-        // Сохраняем запись при выходе
         if (Recorder::get()->isRecording()) {
             Recorder::get()->stopRecording(this);
         }
-        
         GhostManager::get()->onExitLevel();
-        
         PlayLayer::onQuit();
     }
 };
