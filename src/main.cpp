@@ -13,20 +13,11 @@ $on_mod(Loaded) {
     
     log::info("Records directory: {}", FileManager::get()->getRecordsDir().string());
 
-    // Отслеживание изменений настроек (новый API Geode)
+    // Отслеживание изменений настроек
     listenForSettingChanges("auto-record", [](bool value) {
         log::info("Auto Record setting changed to: {}", value);
     });
 }
 
-$on_mod(Unloaded) {
-    log::info("Ghost Replay mod unloaded!");
-    
-    // Останавливаем запись если идёт
-    if (Recorder::get()->isRecording()) {
-        Recorder::get()->stopRecording(nullptr);
-    }
-    
-    // Очищаем призраков
-    GhostManager::get()->onExitLevel();
-}
+// Unloaded больше не используется в Geode 4.x таким образом
+// Очистка произойдёт автоматически при закрытии игры
