@@ -1,0 +1,8 @@
+{
+    "id": "ghost-replay",
+    "name": "Ghost Replay",
+    "version": "1.0.0",
+    "description": "A mod for recording and replaying ghost runs",
+    "author": "",
+    "geode": "2.0.0"
+}
