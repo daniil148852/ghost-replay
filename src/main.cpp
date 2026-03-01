@@ -1,5 +1,4 @@
 #include <Geode/Geode.hpp>
-#include <Geode/loader/SettingEvent.hpp>
 #include "FileManager.hpp"
 #include "Recorder.hpp"
 #include "GhostManager.hpp"
@@ -13,6 +12,11 @@ $on_mod(Loaded) {
     FileManager::get()->init();
     
     log::info("Records directory: {}", FileManager::get()->getRecordsDir().string());
+
+    // Отслеживание изменений настроек (новый API Geode)
+    listenForSettingChanges("auto-record", [](bool value) {
+        log::info("Auto Record setting changed to: {}", value);
+    });
 }
 
 $on_mod(Unloaded) {
