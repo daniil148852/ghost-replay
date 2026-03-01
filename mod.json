@@ -1,8 +1,41 @@
 {
+    "geode": "4.10.2",
+    "gd": {
+        "android": "2.2074"
+    },
+    "version": "v1.0.0",
     "id": "ghost-replay",
     "name": "Ghost Replay",
-    "version": "1.0.0",
-    "description": "A mod for recording and replaying ghost runs",
-    "author": "",
-    "geode": "2.0.0"
+    "developer": "GhostDev",
+    "description": "Record your gameplay and race against your ghost! Supports multiple simultaneous ghosts.",
+    "settings": {
+        "auto-record": {
+            "type": "bool",
+            "default": true,
+            "name": "Auto Record",
+            "description": "Automatically record when entering a level"
+        },
+        "ghost-opacity": {
+            "type": "int",
+            "default": 120,
+            "min": 30,
+            "max": 255,
+            "name": "Ghost Opacity",
+            "description": "Opacity of ghost players"
+        },
+        "loop-ghosts": {
+            "type": "bool",
+            "default": false,
+            "name": "Loop Ghosts",
+            "description": "Loop ghost playback when it ends"
+        },
+        "max-ghosts": {
+            "type": "int",
+            "default": 5,
+            "min": 1,
+            "max": 10,
+            "name": "Max Simultaneous Ghosts",
+            "description": "Maximum number of ghosts displayed at once"
+        }
+    }
 }
