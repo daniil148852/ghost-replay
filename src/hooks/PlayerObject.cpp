@@ -2,226 +2,195 @@
 #include <Geode/modify/PlayerObject.hpp>
 #include "../Recorder.hpp"
 #include "../GhostManager.hpp"
+#include "../GhostPlayer.hpp"
 
 using namespace geode::prelude;
 
 class $modify(GhostPlayerObject, PlayerObject) {
-    
-    struct Fields {
-        bool isGhostPlayer = false;
-    };
 
-    // Хук на обновление игрока — захватываем дополнительные данные
-    void update(float dt) {
-        PlayerObject::update(dt);
-        
-        // Не обрабатываем призраков
-        if (m_fields->isGhostPlayer) return;
-        
-        // Проверяем что это основной игрок в PlayLayer
-        auto playLayer = PlayLayer::get();
-        if (!playLayer) return;
-        if (this != playLayer->m_player1) return;
-        
-        // Дополнительная синхронизация данных записи
-        // (основная запись идёт через PlayLayer::update, 
-        //  здесь ловим промежуточные состояния)
+    // Проверка: является ли этот PlayerObject призраком
+    bool isGhostInstance() {
+        return GhostPlayer::isGhost(this);
     }
     
-    // Хук на смену формы — важно для корректного отображения призрака
+    // Проверка: является ли этот объект основным player1
+    bool isMainPlayer() {
+        auto pl = PlayLayer::get();
+        return pl && this == pl->m_player1;
+    }
+
+    void update(float dt) {
+        if (isGhostInstance()) return; // Призраки не обновляются через движок
+        PlayerObject::update(dt);
+    }
+    
     void toggleFlyMode(bool flying, bool playEffects) {
+        if (isGhostInstance()) return;
         PlayerObject::toggleFlyMode(flying, playEffects);
         
-        if (m_fields->isGhostPlayer) return;
-        
-        auto playLayer = PlayLayer::get();
-        if (!playLayer || this != playLayer->m_player1) return;
-        
-        // Записываем смену режима как специальный инпут
-        Recorder::get()->recordInput(flying, false, 100); // 100 = flyMode marker
+        if (isMainPlayer()) {
+            Recorder::get()->recordInput(flying, false, 100);
+        }
     }
     
     void toggleBirdMode(bool bird, bool playEffects) {
+        if (isGhostInstance()) return;
         PlayerObject::toggleBirdMode(bird, playEffects);
         
-        if (m_fields->isGhostPlayer) return;
-        
-        auto playLayer = PlayLayer::get();
-        if (!playLayer || this != playLayer->m_player1) return;
-        
-        Recorder::get()->recordInput(bird, false, 101); // 101 = birdMode (UFO)
+        if (isMainPlayer()) {
+            Recorder::get()->recordInput(bird, false, 101);
+        }
     }
     
     void toggleDartMode(bool dart, bool playEffects) {
+        if (isGhostInstance()) return;
         PlayerObject::toggleDartMode(dart, playEffects);
         
-        if (m_fields->isGhostPlayer) return;
-        
-        auto playLayer = PlayLayer::get();
-        if (!playLayer || this != playLayer->m_player1) return;
-        
-        Recorder::get()->recordInput(dart, false, 102); // 102 = dartMode (Wave)
+        if (isMainPlayer()) {
+            Recorder::get()->recordInput(dart, false, 102);
+        }
     }
     
     void toggleRollMode(bool ball, bool playEffects) {
+        if (isGhostInstance()) return;
         PlayerObject::toggleRollMode(ball, playEffects);
         
-        if (m_fields->isGhostPlayer) return;
-        
-        auto playLayer = PlayLayer::get();
-        if (!playLayer || this != playLayer->m_player1) return;
-        
-        Recorder::get()->recordInput(ball, false, 103); // 103 = rollMode (Ball)
+        if (isMainPlayer()) {
+            Recorder::get()->recordInput(ball, false, 103);
+        }
     }
     
     void toggleRobotMode(bool robot, bool playEffects) {
+        if (isGhostInstance()) return;
         PlayerObject::toggleRobotMode(robot, playEffects);
         
-        if (m_fields->isGhostPlayer) return;
-        
-        auto playLayer = PlayLayer::get();
-        if (!playLayer || this != playLayer->m_player1) return;
-        
-        Recorder::get()->recordInput(robot, false, 104); // 104 = robotMode
+        if (isMainPlayer()) {
+            Recorder::get()->recordInput(robot, false, 104);
+        }
     }
     
     void toggleSpiderMode(bool spider, bool playEffects) {
+        if (isGhostInstance()) return;
         PlayerObject::toggleSpiderMode(spider, playEffects);
         
-        if (m_fields->isGhostPlayer) return;
-        
-        auto playLayer = PlayLayer::get();
-        if (!playLayer || this != playLayer->m_player1) return;
-        
-        Recorder::get()->recordInput(spider, false, 105); // 105 = spiderMode
+        if (isMainPlayer()) {
+            Recorder::get()->recordInput(spider, false, 105);
+        }
     }
     
     void toggleSwingMode(bool swing, bool playEffects) {
+        if (isGhostInstance()) return;
         PlayerObject::toggleSwingMode(swing, playEffects);
         
-        if (m_fields->isGhostPlayer) return;
-        
-        auto playLayer = PlayLayer::get();
-        if (!playLayer || this != playLayer->m_player1) return;
-        
-        Recorder::get()->recordInput(swing, false, 106); // 106 = swingMode
+        if (isMainPlayer()) {
+            Recorder::get()->recordInput(swing, false, 106);
+        }
     }
     
-    // Хук на изменение гравитации
-    void flipGravity(bool flipGravity, bool playEffects) {
-        PlayerObject::flipGravity(flipGravity, playEffects);
+    void flipGravity(bool flip, bool playEffects) {
+        if (isGhostInstance()) return;
+        PlayerObject::flipGravity(flip, playEffects);
         
-        if (m_fields->isGhostPlayer) return;
-        
-        auto playLayer = PlayLayer::get();
-        if (!playLayer || this != playLayer->m_player1) return;
-        
-        Recorder::get()->recordInput(flipGravity, false, 200); // 200 = gravity flip
+        if (isMainPlayer()) {
+            Recorder::get()->recordInput(flip, false, 200);
+        }
     }
     
-    // Хук на изменение размера (мини портал)
     void togglePlayerScale(bool mini, bool playEffects) {
+        if (isGhostInstance()) return;
         PlayerObject::togglePlayerScale(mini, playEffects);
         
-        if (m_fields->isGhostPlayer) return;
-        
-        auto playLayer = PlayLayer::get();
-        if (!playLayer || this != playLayer->m_player1) return;
-        
-        Recorder::get()->recordInput(mini, false, 201); // 201 = scale change
+        if (isMainPlayer()) {
+            Recorder::get()->recordInput(mini, false, 201);
+        }
     }
     
-    // Хук на смерть игрока
     void playerDestroyed(bool explode) {
-        if (m_fields->isGhostPlayer) {
-            // Призрак не должен запускать эффекты смерти
-            // Просто скрываем
+        if (isGhostInstance()) {
+            // Призрак — только скрываем, без эффектов смерти
             this->setVisible(false);
             return;
         }
-        
         PlayerObject::playerDestroyed(explode);
     }
     
-    // Хук на респаун (checkpoint)
     void resetObject() {
+        if (isGhostInstance()) return;
         PlayerObject::resetObject();
-        
-        if (m_fields->isGhostPlayer) return;
-        
-        // Не нужно специально обрабатывать — 
-        // PlayLayer::resetLevel уже вызывает Recorder::onResetLevel
     }
     
-    // Предотвращаем взаимодействие призрака с триггерами и объектами
+    // Коллизии — призраки полностью игнорируют
     void collidedWithObject(float dt, GameObject* obj, CCRect rect, bool idk) {
-        // Призраки не коллайдятся
-        if (m_fields->isGhostPlayer) return;
-        
+        if (isGhostInstance()) return;
         PlayerObject::collidedWithObject(dt, obj, rect, idk);
     }
     
-    // Предотвращаем столкновения призрака с землёй/потолком
     void checkSnapJumpToObject(GameObject* obj) {
-        if (m_fields->isGhostPlayer) return;
-        
+        if (isGhostInstance()) return;
         PlayerObject::checkSnapJumpToObject(obj);
     }
     
-    // Хук на эффект дэша
-    void startDashing(DashRingObject* ring) {
-        if (m_fields->isGhostPlayer) return;
-        
-        PlayerObject::startDashing(ring);
-        
-        auto playLayer = PlayLayer::get();
-        if (!playLayer || this != playLayer->m_player1) return;
-        
-        Recorder::get()->recordInput(true, false, 300); // 300 = dash start
-    }
-    
-    void stopDashing() {
-        if (m_fields->isGhostPlayer) return;
-        
-        PlayerObject::stopDashing();
-        
-        auto playLayer = PlayLayer::get();
-        if (!playLayer || this != playLayer->m_player1) return;
-        
-        Recorder::get()->recordInput(false, false, 300); // 300 = dash stop
-    }
-    
-    // Важно: предотвращаем активацию триггеров призраком
+    // Триггеры — призраки не активируют
     void activateObject(GameObject* obj) {
-        if (m_fields->isGhostPlayer) return;
-        
+        if (isGhostInstance()) return;
         PlayerObject::activateObject(obj);
     }
     
-    // Хук на создание трейла (частицы)
+    // Трейлы
     void setupStreak() {
-        // Призраки не создают трейлы (опционально)
-        if (m_fields->isGhostPlayer) return;
-        
+        if (isGhostInstance()) return;
         PlayerObject::setupStreak();
     }
     
-    // Ring (орб) активация
+    // Орбы
     void ringJump(RingObject* ring, bool push) {
-        if (m_fields->isGhostPlayer) return;
-        
+        if (isGhostInstance()) return;
         PlayerObject::ringJump(ring, push);
         
-        auto playLayer = PlayLayer::get();
-        if (!playLayer || this != playLayer->m_player1) return;
-        
-        Recorder::get()->recordInput(push, false, 400); // 400 = ring
+        if (isMainPlayer()) {
+            Recorder::get()->recordInput(push, false, 400);
+        }
     }
     
-    // Pad активация
+    // Пады
     void activateJumpPad(PadObject* pad, bool push) {
-        if (m_fields->isGhostPlayer) return;
-        
+        if (isGhostInstance()) return;
         PlayerObject::activateJumpPad(pad, push);
+    }
+    
+    // Дэш
+    void startDashing(DashRingObject* ring) {
+        if (isGhostInstance()) return;
+        PlayerObject::startDashing(ring);
+        
+        if (isMainPlayer()) {
+            Recorder::get()->recordInput(true, false, 300);
+        }
+    }
+    
+    void stopDashing() {
+        if (isGhostInstance()) return;
+        PlayerObject::stopDashing();
+        
+        if (isMainPlayer()) {
+            Recorder::get()->recordInput(false, false, 300);
+        }
+    }
+    
+    // Предотвращаем звуки и эффекты от призраков
+    void playDeathEffect() {
+        if (isGhostInstance()) return;
+        PlayerObject::playDeathEffect();
+    }
+    
+    void playSpawnEffect() {
+        if (isGhostInstance()) return;
+        PlayerObject::playSpawnEffect();
+    }
+    
+    // Телепорты — призраки не телепортируются через порталы
+    void portalTeleport(TeleportPortalObject* portal) {
+        if (isGhostInstance()) return;
+        PlayerObject::portalTeleport(portal);
     }
 };
