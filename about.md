@@ -1,17 +1,9 @@
 # Ghost Replay
 
-A mod for recording and replaying ghost runs.
+Record your gameplay and race against your past attempts!
 
 ## Features
-
-- Record gameplay
-- Replay ghost runs
-- Save and load recordings
-
-## Installation
-
-Install via Geode mod manager.
-
-## Usage
-
-TODO: Add usage instructions
+- **Auto Recording** - Every attempt is recorded automatically
+- **Multiple Ghosts** - Display up to 10 ghosts simultaneously
+- **Ghost Management** - Enable/disable specific recordings
+- **Persistent Storage** - Recordings saved per level with timestamps
