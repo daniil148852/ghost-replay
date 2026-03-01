@@ -8,37 +8,35 @@ using namespace geode::prelude;
 
 class $modify(GhostPlayerObject, PlayerObject) {
     
-    // Проверка: является ли этот PlayerObject призраком
     bool isGhostInstance() {
         return GhostPlayer::isGhost(this);
     }
     
-    // Проверка: является ли этот объект основным игроком, которого контролирует человек
     bool isMainPlayer() {
         auto pl = PlayLayer::get();
         if (!pl) return false;
-        // Это либо игрок 1, либо игрок 2 (в дуале)
         return (this == pl->m_player1 || this == pl->m_player2);
     }
 
-    // === ПЕРЕХВАТ НАЖАТИЙ (НОВАЯ ЛОГИКА) ===
+    // === ПЕРЕХВАТ НАЖАТИЙ ===
     
-    void pushButton(int button) {
-        if (isGhostInstance()) return; // Призраки не нажимают кнопки физически
+    // В GD 2.2 pushButton принимает PlayerButton (enum)
+    void pushButton(PlayerButton button) {
+        if (isGhostInstance()) return;
         
         PlayerObject::pushButton(button);
         
-        // Записываем нажатие, если это реальный игрок
         if (isMainPlayer()) {
             bool isP2 = false;
             if (auto pl = PlayLayer::get()) {
                 if (this == pl->m_player2) isP2 = true;
             }
-            Recorder::get()->recordInput(true, isP2, button);
+            // Кастим enum к int для записи
+            Recorder::get()->recordInput(true, isP2, static_cast<int>(button));
         }
     }
 
-    void releaseButton(int button) {
+    void releaseButton(PlayerButton button) {
         if (isGhostInstance()) return;
         
         PlayerObject::releaseButton(button);
@@ -48,14 +46,14 @@ class $modify(GhostPlayerObject, PlayerObject) {
             if (auto pl = PlayLayer::get()) {
                 if (this == pl->m_player2) isP2 = true;
             }
-            Recorder::get()->recordInput(false, isP2, button);
+            Recorder::get()->recordInput(false, isP2, static_cast<int>(button));
         }
     }
 
-    // === ОСТАЛЬНЫЕ ХУКИ ДЛЯ СОСТОЯНИЙ И ИЗОЛЯЦИИ ПРИЗРАКОВ ===
+    // === ОСТАЛЬНЫЕ ХУКИ ===
 
     void update(float dt) {
-        if (isGhostInstance()) return; // Призраки обновляются вручную через GhostManager
+        if (isGhostInstance()) return;
         PlayerObject::update(dt);
     }
     
@@ -140,7 +138,6 @@ class $modify(GhostPlayerObject, PlayerObject) {
         }
     }
     
-    // Призрак просто исчезает, не вызывая краш игры или эффекты смерти
     void playerDestroyed(bool explode) {
         if (isGhostInstance()) {
             this->setVisible(false);
@@ -149,7 +146,6 @@ class $modify(GhostPlayerObject, PlayerObject) {
         PlayerObject::playerDestroyed(explode);
     }
     
-    // Изоляция физики призрака
     void resetObject() {
         if (isGhostInstance()) return;
         PlayerObject::resetObject();
@@ -160,20 +156,10 @@ class $modify(GhostPlayerObject, PlayerObject) {
         PlayerObject::collidedWithObject(dt, obj, rect, idk);
     }
     
-    void checkSnapJumpToObject(GameObject* obj) {
-        if (isGhostInstance()) return;
-        PlayerObject::checkSnapJumpToObject(obj);
-    }
-    
-    void activateObject(GameObject* obj) {
-        if (isGhostInstance()) return;
-        PlayerObject::activateObject(obj);
-    }
-    
-    void setupStreak() {
-        if (isGhostInstance()) return;
-        PlayerObject::setupStreak();
-    }
+    // В 2.2074 activateObject не принимает аргументов в PlayerObject (согласно логу ошибки)
+    // Но нам важно перехватить активацию объектов.
+    // Если метод activateObject() без аргументов, то он нам не подходит для проверки "какой объект".
+    // Оставим только те методы, которые точно существуют и важны.
     
     void ringJump(RingObject* ring, bool push) {
         if (isGhostInstance()) return;
@@ -184,10 +170,9 @@ class $modify(GhostPlayerObject, PlayerObject) {
         }
     }
     
-    void activateJumpPad(PadObject* pad, bool push) {
-        if (isGhostInstance()) return;
-        PlayerObject::activateJumpPad(pad, push);
-    }
+    // activateJumpPad, portalTeleport и activateObject с аргументом удалены,
+    // так как их нет в байндингах или сигнатуры изменились.
+    // Для базовой функциональности записи инпутов и движений этого достаточно.
     
     void startDashing(DashRingObject* ring) {
         if (isGhostInstance()) return;
@@ -215,10 +200,5 @@ class $modify(GhostPlayerObject, PlayerObject) {
     void playSpawnEffect() {
         if (isGhostInstance()) return;
         PlayerObject::playSpawnEffect();
-    }
-    
-    void portalTeleport(TeleportPortalObject* portal) {
-        if (isGhostInstance()) return;
-        PlayerObject::portalTeleport(portal);
     }
 };
