@@ -203,8 +203,8 @@ void GhostPlayer::playDeathEffect() {
         m_simplePlayer->runAction(spawn);
     }
     
-    // Частицы при исчезновении
-    auto particles = CCParticleSystemQuad::create("explodeEffect.plist");
+    // FIX: Добавлен второй аргумент false, так как в Android байндингах GD 2.2 сигнатура требует его
+    auto particles = CCParticleSystemQuad::create("explodeEffect.plist", false);
     if (particles) {
         particles->setPosition(this->getPosition());
         particles->setAutoRemoveOnFinish(true);
